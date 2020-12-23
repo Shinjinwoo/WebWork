@@ -41,7 +41,7 @@
 	<td width="5%">${articleNum.count}</td>
 	<td width="10%">${article.id }</td>
 	<td align='left'  width="35%">
-	    <span style="padding-right:30px"></span>     
+	    <span style="padding-right:30px"></span>    
 	   <c:choose>
 	      <c:when test='${article.level > 1 }'>  
 	         <c:forEach begin="1" end="${article.level }" step="1">
