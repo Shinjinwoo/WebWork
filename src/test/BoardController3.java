@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -47,6 +48,7 @@ public class BoardController3 extends HttpServlet {
 		String nextPage = "";
 		request.setCharacterEncoding("utf-8");
 		response.setContentType("text/html; charset=utf-8");
+		HttpSession session;
 		String action = request.getPathInfo();
 		System.out.println("action:" + action);
 		try {
@@ -64,6 +66,8 @@ public class BoardController3 extends HttpServlet {
 			} else if (action.equals("/addArticle.do")) {
 				int articleNO = 0;
 				Map<String, String> articleMap = upload(request, response);
+				
+				
 				String title = articleMap.get("title");
 				String content = articleMap.get("content");
 				String imageFileName = articleMap.get("imageFileName");
@@ -132,6 +136,63 @@ public class BoardController3 extends HttpServlet {
 				pw.print("<script>" + "  alert('글을 삭제했습니다.');" + " location.href='" + request.getContextPath()
 						+ "/board/listArticles.do';" + "</script>");
 				return;
+			} else if ( action.equals("/replyForm.do")) {
+				// viewArticle.jsp에서  답글달기 버튼을 클릭하면 replyForm.do를 URL로 넘겨준다.  
+				int parentNO = Integer.parseInt(request.getParameter("parentNO"));
+				// 정수형 변수 parentNO는 답변을 달 원 게시글의 글번호를 의미하고 이 번호를 파라매터를 통해 넘겨받는다.
+				session = request.getSession();
+				// 서버에 생성된 세션이 있다면 반환하고 없다면  새 새션을 생성한다.
+				session.setAttribute("parentNO",parentNO);
+				// 생성된 세션 속성에 부모글 번호를 답는다.
+				nextPage = "/1222/replyForm.jsp";
+				// replyForm.jsp 파일로 이동
+				
+			} else if (action.equals("/addReply.do")) {
+				// replyForm에서 /addReply.do를  넘겨받으면 실행되는 조건문이다.
+				session = request.getSession();
+				// 서버에 생성된 세션이 있다면 반환하고 없다면  새 새션을 생성한다.
+				int parentNO = (Integer) session.getAttribute("parentNO");
+				// parentNO 변수에 정수형으로 세션의 속성으로 parentNO를 넘겨받아 저장한다.
+				session.removeAttribute("parentNO");
+				// 세션속성에서 부모 게시글 번호(parentNO)를 제거 한다.
+				Map<String, String> articleMap = upload(request,response);
+				// articleMap에 저장된 게시글의 정보를 가져온다.
+				String title = articleMap.get("title");
+				// 게시글 제목
+				String content = articleMap.get("content");
+				// 게시글 내용
+				String imageFileName = articleMap.get("imageFileName");
+				// 게시글의 이미지 파일
+				
+				articleVO.setParentNO(parentNO);
+				// 게터 세터에 부모 게시글의 번호를 셋
+				articleVO.setId("hong");
+				// 게시글 작성자 셋
+				articleVO.setTitle(title);
+				// 게시글 제목 셋
+				articleVO.setContent(content);
+				// 게시글 내용 셋
+				articleVO.setImageFileName(imageFileName);
+				// 이미지 파일을 셋
+				
+				int articleNO = boardService.addReply(articleVO);
+				// 정수형 변수 자식 게시글 번호를 보드 서비스 클래스의 addReply메서드의 리턴값으로 받는다.
+				
+				if (imageFileName != null && imageFileName.length() != 0) {
+					File srcFile = new File(ARTICLE_IMAGE_REPO + "\\" + "temp" +"\\" + imageFileName);
+					// 이미지 파일 이름이 낫널이거나 이미파일의 이름의 길이가 0이 아닐 경우
+					// srcFile에  경로에 해당되는 pathname에 해당되는 파일의 File 객체를 생성한다. 
+
+					
+					File destDir = new File(ARTICLE_IMAGE_REPO + "\\" + articleNO);
+					destDir.mkdirs();
+					FileUtils.moveFileToDirectory(srcFile, destDir, true);
+				}
+				PrintWriter pw = response.getWriter();
+				pw.print("<script>" + "  alert('답글을 추가했습니다.');" + " location.href='" + request.getContextPath()
+						+ "/board/viewArticle.do?articleNO="+articleNO+"';" + "</script>");
+				return;
+				
 			}
 
 			RequestDispatcher dispatch = request.getRequestDispatcher(nextPage);

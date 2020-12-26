@@ -37,22 +37,37 @@
 	 }
 	 
 	 function fn_remove_article(url,articleNO){
-		 <!-- 자바 스크립트를 이용해 동적으로 <FORM>태그를 생성합니다 -->
+		 <%-- 자바 스크립트를 이용해 동적으로 <FORM>태그를 생성합니다 --%>
 		 var form = document.createElement("form");
 		 form.setAttribute("method", "post");
 		 form.setAttribute("action", url);
-		 <!--자바 스크립트를 이용해 동적으로 <input> 태그를 생성한 후 name과 value를 articleNO와 컨트롤러로 글 번호를 설정합니다. -->
+		 <%--자바 스크립트를 이용해 동적으로 <input> 태그를 생성한 후 name과 value를 articleNO와 컨트롤러로 글 번호를 설정합니다. --%>
 	     var articleNOInput = document.createElement("input");
 	     articleNOInput.setAttribute("type","hidden");
 	     articleNOInput.setAttribute("name","articleNO");
 	     articleNOInput.setAttribute("value", articleNO);
-		 <!-- 동적으로 생성된 <input> 태그를 동적으로 생성한 <form> 태그에 append합니다. -->
+	     <%--- 동적으로 생성된 <input> 태그를 동적으로 생성한 <form> 태그에 append합니다. --%>
 	     form.appendChild(articleNOInput);
-	     <!-- <form> 태그를<body> 태그에 추가(append)한 후 서버에 요청합니다. -->
+	     <%-- <form> 태그를<body> 태그에 추가(append)한 후 서버에 요청합니다. --%>
 	     document.body.appendChild(form);
 	     form.submit();
 	 
 	 }
+	 
+	 function fn_reply_form(url, parentNO){
+		 var form = document.createElement("form");
+		 form.setAttribute("method", "post");
+		 form.setAttribute("action", url);
+	     var parentNOInput = document.createElement("input");
+	     parentNOInput.setAttribute("type","hidden");
+	     parentNOInput.setAttribute("name","parentNO");
+	     parentNOInput.setAttribute("value", parentNO);
+		 
+	     form.appendChild(parentNOInput);
+	     document.body.appendChild(form);
+		 form.submit();
+	 }
+	 
 	 
 	 function readURL(input) {
 	     if (input.files && input.files[0]) {
